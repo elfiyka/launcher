@@ -36,6 +36,7 @@
  */
 
 #include "MinecraftInstance.h"
+#include "minecraft/launch/InjectAuthlib.h"
 #include "Application.h"
 #include "BuildConfig.h"
 #include "Json.h"
@@ -603,6 +604,10 @@ QStringList MinecraftInstance::javaArguments()
 
     args << "-Duser.language=en";
 
+    if (m_injector) {
+        args.append(m_injector->javaArg);
+    }
+
     // custom args go first. we want to override them if we have our own here.
     args.append(extraArguments());
 
@@ -1153,11 +1158,19 @@ QList<LaunchStep::Ptr> MinecraftInstance::createUpdateTask()
     };
 }
 
-LaunchTask* MinecraftInstance::createLaunchTask(AuthSessionPtr session, MinecraftTarget::Ptr targetToJoin)
+LaunchTask* MinecraftInstance::createLaunchTask(AuthSessionPtr session, MinecraftTarget::Ptr targetToJoin, quint16 localAuthServerPort)
 {
     updateRuntimeContext();
     auto process = LaunchTask::create(this);
     auto pptr = process.get();
+
+    {
+        auto step = makeShared<InjectAuthlib>(pptr, &m_injector);
+        QString localServerUrl = QString("http://localhost:%1/auth/").arg(localAuthServerPort);
+        step->setAuthServer(localServerUrl);
+        step->setOfflineMode(false);
+        process->appendStep(step);
+    }
 
     APPLICATION->icons()->saveIcon(iconKey(), FS::PathCombine(gameRoot(), "icon.png"), "PNG");
 

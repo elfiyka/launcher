@@ -88,6 +88,7 @@ class Index;
 #undef APPLICATION
 #endif
 #define APPLICATION (static_cast<Application*>(QCoreApplication::instance()))
+class AuthServer;
 
 // Used for checking if is a test
 #if defined(APPLICATION_DYN)
@@ -244,6 +245,7 @@ class Application : public QApplication {
 
    private:
     QDateTime m_startTime;
+    std::shared_ptr<AuthServer> m_authserver;
 
     std::unique_ptr<QNetworkAccessManager> m_network;
 
