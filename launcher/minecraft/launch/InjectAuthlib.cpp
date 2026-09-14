@@ -4,7 +4,7 @@
 #include <FileSystem.h>
 #include <Application.h>
 #include <Json.h>
-#include <net/NetRequest.h>
+#include <net/Request.h>
 #include <net/HttpMetaCache.h>
 #include <utility>
 
@@ -28,7 +28,7 @@ void InjectAuthlib::executeTask()
         
         MetaEntryPtr entry = APPLICATION->metacache()->resolveEntry("injectors", "version.json");
         entry->setStale(true);
-        auto task = Net::NetRequest::makeCached(QUrl(latestVersionInfo), entry);;
+        auto task = Net::Request::makeCached(QUrl(latestVersionInfo), entry);;
         netJob->addNetAction(task);
 
         jobPtr.reset(std::move(netJob));
@@ -97,7 +97,7 @@ void InjectAuthlib::onVersionDownloadSucceeded()
         auto netJob = new NetJob("Injector download", APPLICATION->network());
         MetaEntryPtr entry = APPLICATION->metacache()->resolveEntry("injectors", m_versionName);
         entry->setStale(true);
-        auto task = Net::NetRequest::makeCached(QUrl(downloadUrl), entry);;
+        auto task = Net::Request::makeCached(QUrl(downloadUrl), entry);;
         netJob->addNetAction(task);
 
         jobPtr.reset(std::move(netJob));
